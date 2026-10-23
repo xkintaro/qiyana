@@ -135,7 +135,7 @@ footer p { font-size: 12px; }
     position: absolute;
     z-index: -2;
     inset: 0;
-    background: url('/images/hero.webp') 72% center / auto 110% no-repeat;
+    background: url('/images/lc5iafb6_20261024010904243.webp') 72% center / auto 110% no-repeat;
     opacity: .2;
     filter: saturate(.75);
     mask-image: linear-gradient(90deg, transparent 30%, #000 85%);
