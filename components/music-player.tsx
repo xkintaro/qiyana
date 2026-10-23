@@ -1,10 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { soundtrack, type PlaybackState } from '../lib/soundtrack';
 
 const formatTime = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, '0')}`;
 
-export default function MusicPlayer() {
+export default function MusicPlayer({ onPlaybackChange }: { onPlaybackChange?: (state: PlaybackState) => void }) {
   const audio = useRef<HTMLAudioElement>(null);
   const player = useRef<HTMLElement>(null);
   const closing = useRef(false);
@@ -26,6 +27,10 @@ export default function MusicPlayer() {
   const [volume, setVolume] = useState(.35);
   const [muted, setMuted] = useState(false);
   const [status, setStatus] = useState<'blocked' | 'error' | null>(null);
+
+  useEffect(() => {
+    onPlaybackChange?.({ time: seekPreview ?? position, playing });
+  }, [position, seekPreview, playing, onPlaybackChange]);
 
   useEffect(() => {
     if (!expanded) return;
@@ -169,7 +174,7 @@ export default function MusicPlayer() {
   }, [volume, muted]);
 
   return <>
-    <audio ref={audio} src="/audio/worry-instrumental-ultra-slowed.mp3" preload="metadata" loop
+    <audio ref={audio} src={soundtrack.src} preload="metadata" loop
       onPlay={() => { setPlaying(true); setStatus(null); }} onPause={() => setPlaying(false)}
       onTimeUpdate={event => { if (!scrubbing.current && !settlingSeek.current) setPosition(event.currentTarget.currentTime); }}
       onSeeked={finishSeek}
@@ -181,7 +186,7 @@ export default function MusicPlayer() {
       <div className="music-summary">
         <button ref={playButton} className="music-toggle" aria-label={playing ? "Pause music" : "Play music"}
           onClick={() => playing ? audio.current?.pause() : play()}><span aria-hidden="true">{playing ? 'Ⅱ' : '▶'}</span></button>
-        <div className="music-track"><strong>{"worry"}</strong><span>{"instrumental · ultra slowed"}</span></div>
+        <div className="music-track"><strong>{soundtrack.title}</strong><span>{soundtrack.artist}</span></div>
         <div className={`music-bars ${playing ? 'is-playing' : ''}`} aria-hidden="true"><i/><i/><i/><i/></div>
         <button className="music-resize" aria-expanded={expanded} aria-controls="music-details" aria-label={expanded ? "Minimize player" : "Expand player"}
           onClick={() => setExpanded(!expanded)}>{expanded ? '−' : '+'}</button>
