@@ -40,7 +40,6 @@ export default function Home() {
         </div>
         <MusicPlayer/>
       </section>
-      <div className="hero-footer"><span>01 / THE QUEEN HAS ARRIVED</span><span className="footer-dedication">A LITTLE OBSESSED. ALWAYS.</span><span>© 2026</span></div>
     </div>
     {panel && <SectionModal kind={panel} title={panel === 'queen' ? '01 / THE EMPRESS' : panel === 'spotlight' ? '02 / IN THE SPOTLIGHT' : '03 / THE COLLECTION'} onClose={() => setPanel(null)}>
       {panel === 'queen' && <div className="queen-panel">
