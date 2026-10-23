@@ -109,3 +109,12 @@ h2 em,.queen-signature em { font-family:Georgia,serif; color:var(--pink); font-w
 @keyframes backdrop-leave { from{opacity:1}to{opacity:0} }
 @media(max-width:700px) { .modal-queen { width:min(550px,100%); max-height:100dvh; } }
 @media(max-width:560px) { .modal-queen { width:100%; max-height:100dvh; } }
+
+/* Keep Qiyana's face on the open right side as the landscape art is cropped. */
+@media (max-width:1100px) and (max-aspect-ratio:4/3) {
+  .hero-image { object-position:42% center; }
+}
+@media (max-width:560px) {
+  .hero-image { object-position:44% center; }
+  .hero-content { top:40%; }
+}
