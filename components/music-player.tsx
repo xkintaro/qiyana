@@ -9,9 +9,16 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
   const audio = useRef<HTMLAudioElement>(null);
   const closing = useRef(false);
   const playButton = useRef<HTMLButtonElement>(null);
+  const scrubbing = useRef(false);
+  const seekTarget = useRef(0);
+  const resumeAfterSeek = useRef(false);
+  const settlingSeek = useRef(false);
+  const fadeFrame = useRef<number | null>(null);
+  const seekTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const desiredVolume = useRef(.35);
+  const [seekPreview, setSeekPreview] = useState<number | null>(null);
   const [intro, setIntro] = useState(true);
   const [leaving, setLeaving] = useState(false);
-  const [seconds, setSeconds] = useState(5);
   const [expanded, setExpanded] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [position, setPosition] = useState(0);
@@ -31,32 +38,77 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
     if (!element) return;
     setStatus(null);
     if (element.error) element.load();
-    // Gesture calls play immediately; timer calls let the browser decide autoplay.
+    // Start inside the user gesture, before the exit animation.
     void element.play().catch(error => {
       setStatus(error?.name === 'NotAllowedError' ? 'blocked' : 'error');
     });
   }, []);
 
-  const dismiss = useCallback((withMusic: boolean) => {
+  const finishSeek = useCallback(() => {
+    const element = audio.current;
+    if (!element || scrubbing.current || !settlingSeek.current) return;
+    settlingSeek.current = false;
+    if (!resumeAfterSeek.current) { element.volume = desiredVolume.current; return; }
+    resumeAfterSeek.current = false;
+    // Resume only after decoding the chosen position, with a short volume ramp.
+    element.volume = 0;
+    const started = performance.now();
+    const fade = (now: number) => {
+      const progress = Math.max(0, Math.min(1, (now - started) / 150));
+      element.volume = desiredVolume.current * progress;
+      fadeFrame.current = progress < 1 ? requestAnimationFrame(fade) : null;
+    };
+    play();
+    fadeFrame.current = requestAnimationFrame(fade);
+  }, [play]);
+
+  const beginSeek = () => {
+    const element = audio.current;
+    if (!element || scrubbing.current || !duration) return;
+    if (fadeFrame.current !== null) cancelAnimationFrame(fadeFrame.current);
+    fadeFrame.current = null;
+    resumeAfterSeek.current = !element.paused || resumeAfterSeek.current;
+    settlingSeek.current = false;
+    scrubbing.current = true;
+    seekTarget.current = element.currentTime;
+    setSeekPreview(element.currentTime);
+    element.pause();
+    element.volume = 0;
+  };
+
+  const commitSeek = () => {
+    const element = audio.current;
+    if (!element || !scrubbing.current) return;
+    if (seekTimer.current) clearTimeout(seekTimer.current);
+    seekTimer.current = null;
+    scrubbing.current = false;
+    settlingSeek.current = true;
+    const target = Math.max(0, Math.min(seekTarget.current, duration));
+    setPosition(target);
+    setSeekPreview(null);
+    if (Math.abs(element.currentTime - target) < .01 && !element.seeking) finishSeek();
+    else element.currentTime = target;
+  };
+
+  useEffect(() => () => {
+    if (fadeFrame.current !== null) cancelAnimationFrame(fadeFrame.current);
+    if (seekTimer.current) clearTimeout(seekTimer.current);
+  }, []);
+
+  const dismiss = useCallback(() => {
     if (closing.current) return;
     closing.current = true;
-    if (withMusic) play();
+    play();
     setLeaving(true);
   }, [play]);
 
   useEffect(() => {
-    const interval = window.setInterval(() => setSeconds(value => Math.max(0, value - 1)), 1000);
-    const timeout = window.setTimeout(() => dismiss(true), 5000);
-    return () => { window.clearInterval(interval); window.clearTimeout(timeout); };
-  }, [dismiss]);
-
-  useEffect(() => {
     if (status !== 'blocked') return;
-    // A rejected timer attempt must be retried inside a real user gesture.
+    // Retry a rejected playback request inside a real user gesture.
     // No synthetic clicks or muted autoplay tricks can grant sound permission.
     const retryOnPointer = (event: PointerEvent) => {
       // Let the play button's click handler own its gesture to avoid toggling twice.
-      if (event.target instanceof Element && event.target.closest('.music-toggle')) return;
+      if (event.target instanceof Element && event.target.closest('.music-toggle, .music-progress')) return;
       play();
     };
     const retryOnKey = (event: KeyboardEvent) => {
@@ -79,9 +131,8 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
     const previous = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const keydown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { event.preventDefault(); dismiss(false); }
-      else if ((event.code === 'Space' || event.key === 'Enter') && event.target === document.body) {
-        event.preventDefault(); dismiss(true);
+      if ((event.code === 'Space' || event.key === 'Enter') && event.target === document.body) {
+        event.preventDefault(); dismiss();
       }
     };
     window.addEventListener('keydown', keydown);
@@ -101,13 +152,18 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
   }, [intro]);
 
   useEffect(() => {
-    if (audio.current) { audio.current.volume = volume; audio.current.muted = muted; }
+    desiredVolume.current = volume;
+    if (audio.current) {
+      if (!scrubbing.current && !settlingSeek.current && fadeFrame.current === null) audio.current.volume = volume;
+      audio.current.muted = muted;
+    }
   }, [volume, muted]);
 
   return <>
     <audio ref={audio} src="/audio/worry-instrumental-ultra-slowed.mp3" preload="metadata" loop
       onPlay={() => { setPlaying(true); setStatus(null); }} onPause={() => setPlaying(false)}
-      onTimeUpdate={event => setPosition(event.currentTarget.currentTime)}
+      onTimeUpdate={event => { if (!scrubbing.current && !settlingSeek.current) setPosition(event.currentTarget.currentTime); }}
+      onSeeked={finishSeek}
       onLoadedMetadata={event => { const value = event.currentTarget.duration; setDuration(Number.isFinite(value) ? value : 0); }}
       onDurationChange={event => { const value = event.currentTarget.duration; setDuration(Number.isFinite(value) ? value : 0); }}
       onError={() => { setPlaying(false); setStatus('error'); }} />
@@ -122,9 +178,21 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
           onClick={() => setExpanded(!expanded)}>{expanded ? '−' : '+'}</button>
       </div>
       <div id="music-details" hidden={!expanded}>
-        <label className="music-progress"><span className="sr-only">{text.seek}</span><input type="range" min="0" max={duration || 1} step=".1" value={Math.min(position, duration || 1)} disabled={!duration}
-          onChange={event => { const value = Number(event.target.value); if (audio.current) audio.current.currentTime = value; setPosition(value); }}/></label>
-        <div className="music-times"><span>{formatTime(position)}</span><span>{formatTime(duration)}</span></div>
+        <label className="music-progress"><span className="sr-only">{text.seek}</span><input type="range" min="0" max={duration || 1} step=".1" value={Math.min(seekPreview ?? position, duration || 1)} disabled={!duration}
+          onPointerDown={event => { beginSeek(); event.currentTarget.setPointerCapture(event.pointerId); }}
+          onPointerUp={commitSeek} onPointerCancel={commitSeek} onLostPointerCapture={commitSeek} onBlur={commitSeek}
+          onKeyDown={event => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) beginSeek(); }}
+          onKeyUp={commitSeek}
+          onChange={event => {
+            const value = Number(event.target.value);
+            // Assistive controls may change a range without pointer/key events.
+            const standalone = !scrubbing.current;
+            if (standalone) beginSeek();
+            seekTarget.current = value;
+            setSeekPreview(value);
+            if (standalone) seekTimer.current = setTimeout(commitSeek, 180);
+          }}/></label>
+        <div className="music-times"><span>{formatTime(seekPreview ?? position)}</span><span>{formatTime(duration)}</span></div>
         <div className="music-volume"><button aria-label={muted ? text.unmute : text.mute} aria-pressed={muted} onClick={() => setMuted(!muted)}>{muted ? '○' : '◉'}</button>
           <label><span className="sr-only">{text.volume}</span><input type="range" min="0" max="1" step=".01" value={muted ? 0 : volume} onChange={event => { setVolume(Number(event.target.value)); setMuted(false); }}/></label><span>{Math.round((muted ? 0 : volume) * 100)}%</span></div>
       </div>
@@ -132,15 +200,13 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
     </aside>
 
     {intro && <div className={`music-intro ${leaving ? 'is-leaving' : ''}`} role="dialog" aria-modal="true" aria-label={text.introLabel}>
-      <button className="music-enter" autoFocus disabled={leaving} onClick={() => dismiss(true)} onKeyDown={event => { if (event.key === 'Tab' && event.shiftKey) { event.preventDefault(); document.querySelector<HTMLButtonElement>('.intro-silent')?.focus(); } }}>
+      <button className="music-enter" autoFocus disabled={leaving} onClick={dismiss} onKeyDown={event => { if (event.key === 'Tab') event.preventDefault(); }}>
         <span className="intro-orbit" aria-hidden="true">♫</span>
         <span className="eyebrow">{text.eyebrow}</span>
         <span className="intro-title">{text.title}</span>
         <span className="intro-action">{text.enter}<span aria-hidden="true"> ↗</span></span>
         <span className="intro-hint">{text.hint}</span>
-        <span className="intro-countdown">{text.remaining.replace('{seconds}', String(seconds))}</span>
       </button>
-      <button className="intro-silent" disabled={leaving} onClick={() => dismiss(false)} onKeyDown={event => { if (event.key === 'Tab' && !event.shiftKey) { event.preventDefault(); document.querySelector<HTMLButtonElement>('.music-enter')?.focus(); } }}>{text.silent}</button>
     </div>}
   </>;
 }

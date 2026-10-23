@@ -108,8 +108,6 @@
     "eyebrow": "ATMOSFERE KAPIL",
     "title": "Onun dünyası. Senin müziğin.",
     "enter": "Herhangi bir yere tıkla veya Space’e bas",
-    "hint": "Müzikle giriş yap · 5 saniye sonra otomatik kapanır",
-    "silent": "Müziksiz devam et",
-    "remaining": "{seconds} sn sonra giriş"
+    "hint": "Müzikle giriş yap. Kendini evinde hisset."
   }
 }

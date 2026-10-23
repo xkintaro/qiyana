@@ -108,8 +108,6 @@
     "eyebrow": "SET THE MOOD",
     "title": "Her world. Your soundtrack.",
     "enter": "Click anywhere or press Space",
-    "hint": "Enter with music · closes automatically in 5 seconds",
-    "silent": "Continue without music",
-    "remaining": "Entering in {seconds}s"
+    "hint": "Enter with music. Make yourself at home."
   }
 }
