@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import type { Dictionary } from '../i18n/dictionaries';
 import { locales, languageNames, type Locale } from '../i18n/config';
 import { artworkAssets } from '../lib/artworks';
+import MusicPlayer from './music-player';
 
 export default function Home({ locale, dictionary: t }: { locale: Locale; dictionary: Dictionary }) {
   const artworks = artworkAssets.map(({ id, file }, index) => ({
@@ -28,7 +29,8 @@ export default function Home({ locale, dictionary: t }: { locale: Locale; dictio
   }, [active]);
   const love = () => { setLiked(!liked); localStorage.setItem('qiyana-loved', String(!liked)); };
   return <main className={"locale-" + locale}>
-    <header className="nav"><a className="brand" href="#home" aria-label={t.nav.home}><span className="sigil">♛</span> QIYANA<span className="brand-dot">.</span></a><nav aria-label={t.nav.label}><a href="#queen">{t.nav.queen}</a><a href="#spotlight">{t.nav.spotlight} <span className="tiny-dot" /></a><a href="#gallery">{t.nav.gallery}</a><div className="language-switch" role="group" aria-label={t.nav.language}>{locales.map(lang => <a key={lang} href={"/" + lang} hrefLang={lang} lang={lang} aria-current={lang === locale ? "page" : undefined} aria-label={languageNames[lang]} onClick={event => switchLanguage(event, lang)}>{lang.toUpperCase()}</a>)}</div></nav></header>
+    <MusicPlayer text={t.music} />
+    <header className="nav"><a className="brand" href="#home" aria-label={t.nav.home}>QIYANA<span className="brand-dot">.</span></a><nav aria-label={t.nav.label}><a href="#queen">{t.nav.queen}</a><a href="#spotlight">{t.nav.spotlight} <span className="tiny-dot" /></a><a href="#gallery">{t.nav.gallery}</a><div className="language-switch" role="group" aria-label={t.nav.language}>{locales.map(lang => <a key={lang} href={"/" + lang} hrefLang={lang} lang={lang} aria-current={lang === locale ? "page" : undefined} aria-label={languageNames[lang]} onClick={event => switchLanguage(event, lang)}>{lang.toUpperCase()}</a>)}</div></nav></header>
     <section className="hero" id="home"><img className="hero-image" src="/images/lc5iafb6_20261024010904243.webp" alt={t.hero.alt} fetchPriority="high" /><div className="hero-shade" /><div className="hero-content"><p className="eyebrow"><span /> {t.hero.eyebrow}</p><h1>{t.hero.title}<br/><span>{t.hero.accent}</span></h1><p className="hero-description">{t.hero.description}</p><a className="button" href="#spotlight">{t.hero.enter} <span>↗</span></a><div className="hero-caption"><span className="mini-line" /> {t.hero.caption}</div></div><div className="hero-bottom"><span>{t.hero.arrival}</span><a href="#queen">{t.hero.scroll} <span>↓</span></a><span className="vertical-note">{t.hero.vertical}</span></div></section>
     <div className="ticker" aria-hidden="true"><span>{t.ticker.elements}</span><b>✦</b><span>{t.ticker.empress}</span><b>✦</b><span>{t.ticker.rules}</span><b>✦</b><span>{t.ticker.elements}</span><b>✦</b></div>
     <section className="queen section" id="queen"><div><p className="eyebrow muted">{t.queen.eyebrow}</p><h2>{t.queen.title}<br/>{t.queen.lead}<em>{t.queen.accent}</em></h2></div><div className="queen-copy"><p>{t.queen.intro}</p><p className="subtle">{t.queen.description}</p><div className="queen-facts"><span><b>{t.queen.region}</b>{t.queen.regionLabel}</span><span><b>{t.queen.role}</b>{t.queen.roleLabel}</span><span><b>∞</b>{t.queen.aura}</span></div></div></section>
