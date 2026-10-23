@@ -1,11 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Dictionary } from '../i18n/dictionaries';
 
 const formatTime = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, '0')}`;
 
-export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
+export default function MusicPlayer() {
   const audio = useRef<HTMLAudioElement>(null);
   const player = useRef<HTMLElement>(null);
   const closing = useRef(false);
@@ -178,17 +177,17 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
       onDurationChange={event => { const value = event.currentTarget.duration; setDuration(Number.isFinite(value) ? value : 0); }}
       onError={() => { setPlaying(false); setStatus('error'); }} />
 
-    <aside ref={player} className={`music-player ${expanded ? 'is-expanded' : ''}`} aria-label={text.label} inert={intro}>
+    <aside ref={player} className={`music-player ${expanded ? 'is-expanded' : ''}`} aria-label={"Music player"} inert={intro}>
       <div className="music-summary">
-        <button ref={playButton} className="music-toggle" aria-label={playing ? text.pause : text.play}
+        <button ref={playButton} className="music-toggle" aria-label={playing ? "Pause music" : "Play music"}
           onClick={() => playing ? audio.current?.pause() : play()}><span aria-hidden="true">{playing ? 'Ⅱ' : '▶'}</span></button>
-        <div className="music-track"><strong>{text.track}</strong><span>{text.artist}</span></div>
+        <div className="music-track"><strong>{"worry"}</strong><span>{"instrumental · ultra slowed"}</span></div>
         <div className={`music-bars ${playing ? 'is-playing' : ''}`} aria-hidden="true"><i/><i/><i/><i/></div>
-        <button className="music-resize" aria-expanded={expanded} aria-controls="music-details" aria-label={expanded ? text.collapse : text.expand}
+        <button className="music-resize" aria-expanded={expanded} aria-controls="music-details" aria-label={expanded ? "Minimize player" : "Expand player"}
           onClick={() => setExpanded(!expanded)}>{expanded ? '−' : '+'}</button>
       </div>
       <div id="music-details" hidden={!expanded}>
-        <label className="music-progress"><span className="sr-only">{text.seek}</span><input type="range" min="0" max={duration || 1} step=".1" value={Math.min(seekPreview ?? position, duration || 1)} disabled={!duration}
+        <label className="music-progress"><span className="sr-only">{"Track position"}</span><input type="range" min="0" max={duration || 1} step=".1" value={Math.min(seekPreview ?? position, duration || 1)} disabled={!duration}
           onPointerDown={event => { beginSeek(); event.currentTarget.setPointerCapture(event.pointerId); }}
           onPointerUp={commitSeek} onPointerCancel={commitSeek} onLostPointerCapture={commitSeek} onBlur={commitSeek}
           onKeyDown={event => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) beginSeek(); }}
@@ -203,19 +202,19 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
             if (standalone) seekTimer.current = setTimeout(commitSeek, 180);
           }}/></label>
         <div className="music-times"><span>{formatTime(seekPreview ?? position)}</span><span>{formatTime(duration)}</span></div>
-        <div className="music-volume"><button aria-label={muted ? text.unmute : text.mute} aria-pressed={muted} onClick={() => setMuted(!muted)}>{muted ? '○' : '◉'}</button>
-          <label><span className="sr-only">{text.volume}</span><input type="range" min="0" max="1" step=".01" value={muted ? 0 : volume} onChange={event => { setVolume(Number(event.target.value)); setMuted(false); }}/></label><span>{Math.round((muted ? 0 : volume) * 100)}%</span></div>
+        <div className="music-volume"><button aria-label={muted ? "Unmute" : "Mute"} aria-pressed={muted} onClick={() => setMuted(!muted)}>{muted ? '○' : '◉'}</button>
+          <label><span className="sr-only">{"Volume"}</span><input type="range" min="0" max="1" step=".01" value={muted ? 0 : volume} onChange={event => { setVolume(Number(event.target.value)); setMuted(false); }}/></label><span>{Math.round((muted ? 0 : volume) * 100)}%</span></div>
       </div>
-      {status && <p className="music-status" role="status">{text[status]}</p>}
+      {status && <p className="music-status" role="status">{(status === 'blocked' ? "Click anywhere or press Space to enable music." : "Audio unavailable. Try again.")}</p>}
     </aside>
 
-    {intro && <div className={`music-intro ${leaving ? 'is-leaving' : ''}`} role="dialog" aria-modal="true" aria-label={text.introLabel}>
+    {intro && <div className={`music-intro ${leaving ? 'is-leaving' : ''}`} role="dialog" aria-modal="true" aria-label={"Enter Qiyana’s universe"}>
       <button className="music-enter" autoFocus disabled={leaving} onClick={dismiss} onKeyDown={event => { if (event.key === 'Tab') event.preventDefault(); }}>
         <span className="intro-orbit" aria-hidden="true">♫</span>
-        <span className="eyebrow">{text.eyebrow}</span>
-        <span className="intro-title">{text.title}</span>
-        <span className="intro-action">{text.enter}<span aria-hidden="true"> ↗</span></span>
-        <span className="intro-hint">{text.hint}</span>
+        <span className="eyebrow">{"SET THE MOOD"}</span>
+        <span className="intro-title">{"Her world. Your soundtrack."}</span>
+        <span className="intro-action">{"Click anywhere or press Space"}<span aria-hidden="true"> ↗</span></span>
+        <span className="intro-hint">{"Enter with music. Make yourself at home."}</span>
       </button>
     </div>}
   </>;

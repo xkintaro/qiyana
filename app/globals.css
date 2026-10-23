@@ -93,33 +93,9 @@ footer::before {
   clip-path: inset(0 -100vmax);
 }
 
-.language-switch {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-left: 1px solid var(--line);
-  padding-left: 24px;
-  margin-left: 4px;
-}
-.language-switch a { color: var(--muted); }
-.language-switch a[aria-current="page"] { color: var(--pink); }
-.language-switch a:hover { color: var(--paper); }
 .hero-description, .queen-copy > p:first-child, .spotlight-copy > p:not(.eyebrow) { white-space: pre-line; }
-.locale-tr h1 { font-size: clamp(62px, 7.2vw, 112px); }
-@media (max-width: 900px) {
-  .language-switch { padding-left: 16px; gap: 10px; }
-  .locale-tr h1 { font-size: clamp(62px, 8vw, 86px); }
-}
 @media (max-width: 560px) {
-  .language-switch { padding-left: 10px; margin-left: 0; gap: 8px; }
-  .nav nav { gap: 12px; }
-  .locale-tr h1 { font-size: clamp(41px, 10.5vw, 59px); }
   .spotlight-copy > p:not(.eyebrow) { white-space: normal; }
-}
-
-footer p { font-size: 12px; }
-@media (max-width: 560px) {
-  footer p { font-size: 10px; }
 }
 
 /* A quiet echo of the artwork fills the desktop spotlight's open side. */
