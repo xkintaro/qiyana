@@ -7,6 +7,7 @@ const formatTime = (value: number) => `${Math.floor(value / 60)}:${String(Math.f
 
 export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
   const audio = useRef<HTMLAudioElement>(null);
+  const player = useRef<HTMLElement>(null);
   const closing = useRef(false);
   const playButton = useRef<HTMLButtonElement>(null);
   const scrubbing = useRef(false);
@@ -26,6 +27,15 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
   const [volume, setVolume] = useState(.35);
   const [muted, setMuted] = useState(false);
   const [status, setStatus] = useState<'blocked' | 'error' | null>(null);
+
+  useEffect(() => {
+    if (!expanded) return;
+    const collapseOutside = (event: MouseEvent) => {
+      if (event.target instanceof Node && !player.current?.contains(event.target)) setExpanded(false);
+    };
+    document.addEventListener('click', collapseOutside, true);
+    return () => document.removeEventListener('click', collapseOutside, true);
+  }, [expanded]);
 
   useEffect(() => {
     const element = audio.current;
@@ -168,7 +178,7 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
       onDurationChange={event => { const value = event.currentTarget.duration; setDuration(Number.isFinite(value) ? value : 0); }}
       onError={() => { setPlaying(false); setStatus('error'); }} />
 
-    <aside className={`music-player ${expanded ? 'is-expanded' : ''}`} aria-label={text.label} inert={intro}>
+    <aside ref={player} className={`music-player ${expanded ? 'is-expanded' : ''}`} aria-label={text.label} inert={intro}>
       <div className="music-summary">
         <button ref={playButton} className="music-toggle" aria-label={playing ? text.pause : text.play}
           onClick={() => playing ? audio.current?.pause() : play()}><span aria-hidden="true">{playing ? 'Ⅱ' : '▶'}</span></button>
