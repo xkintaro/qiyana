@@ -1,11 +1,21 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function SectionModal({ kind, title, onClose, children }: {
   kind: string; title: string; onClose: () => void; children: React.ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const [closing, setClosing] = useState(false);
+  const requestClose = () => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) onClose();
+    else setClosing(true);
+  };
+  useEffect(() => {
+    if (!closing) return;
+    const timer = window.setTimeout(onClose, 200);
+    return () => window.clearTimeout(timer);
+  }, [closing, onClose]);
   useEffect(() => {
     const element = dialog.current;
     element?.showModal();
@@ -13,9 +23,9 @@ export default function SectionModal({ kind, title, onClose, children }: {
     document.body.style.overflow = 'hidden';
     return () => { element?.close(); document.body.style.overflow = previous; };
   }, []);
-  return <dialog ref={dialog} className={`section-modal modal-${kind}`} aria-labelledby="modal-title" onCancel={event => { event.preventDefault(); onClose(); }} onClick={event => {
+  return <dialog ref={dialog} className={`section-modal modal-${kind}${closing ? ' is-closing' : ''}`} aria-labelledby="modal-title" onCancel={event => { event.preventDefault(); requestClose(); }} onClick={event => {
     if (event.target !== event.currentTarget) return;
     const rect = event.currentTarget.getBoundingClientRect();
-    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) onClose();
-  }}><div className="modal-topbar"><span id="modal-title">{title}</span><button className="modal-close" onClick={onClose} aria-label="Close panel" autoFocus>✕</button></div>{children}</dialog>;
+    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) requestClose();
+  }}><div className="modal-topbar"><span id="modal-title">{title}</span><button className="modal-close" onClick={requestClose} disabled={closing} aria-label="Close panel" autoFocus>✕</button></div>{children}</dialog>;
 }

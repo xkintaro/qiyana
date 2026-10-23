@@ -53,7 +53,7 @@ h2 em,.queen-signature em { font-family:Georgia,serif; color:var(--pink); font-w
 .modal-topbar>span { font-size:9px; letter-spacing:2px; color:#ad9dbb; }
 .modal-close { border:1px solid #ffffff20; background:none; color:#c7b4d3; width:32px; height:32px; font-size:14px; }
 .modal-close:hover { color:var(--pink); border-color:var(--pink); }
-.modal-queen { width:min(590px,calc(100% - 64px)); }
+.modal-queen { width:min(590px,100%); height:100dvh; max-height:100dvh; margin:0 0 0 auto; border-block:0; border-right:0; animation:drawer-arrive .28s cubic-bezier(.2,.8,.2,1); }
 .queen-visual { height:240px; position:relative; overflow:hidden; }
 .queen-visual img { width:100%; height:100%; object-fit:cover; object-position:center 35%; }
 .queen-visual:after { content:''; position:absolute; inset:0; background:linear-gradient(0deg,#100d18,transparent 65%); }
@@ -87,7 +87,7 @@ h2 em,.queen-signature em { font-family:Georgia,serif; color:var(--pink); font-w
 .art-meta { display:flex; justify-content:space-between; margin-top:13px; font-size:6px; letter-spacing:1.5px; color:#9c8caa; }.art-card h3 { font-weight:500; font-size:12px; line-height:1.5; margin:8px 0 0; }
 .back-to-grid { border:0; background:none; color:var(--pink); font-size:9px; letter-spacing:1px; padding:5px 0 20px; }.art-viewer figure { margin:0; }.art-viewer figure>img { width:100%; max-height:55dvh; object-fit:contain; background:#09070e; display:block; }.art-viewer figcaption { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:20px 0; }.art-viewer h3 { font-size:20px; font-weight:500; margin:10px 0 0; }.art-viewer figcaption a { font-size:8px; letter-spacing:1px; color:var(--pink); }.viewer-controls { display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); padding-top:20px; }.viewer-controls button { background:none; border:0; padding:8px 0; font-size:9px; letter-spacing:1px; color:#d2b6d1; }.viewer-controls>span { font-size:7px; color:var(--muted); letter-spacing:1px; }
 @keyframes scene-arrive { from{transform:scale(1.035);opacity:.5}to{transform:scale(1);opacity:1} }
-@keyframes panel-arrive { from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)} }
+@keyframes panel-arrive { from{opacity:0;transform:translateY(6px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)} }
 @keyframes line-arrive { from{opacity:.2;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
 @keyframes lyric-glow { from{opacity:.4;box-shadow:0 0 0 #ee8ecc00}to{opacity:1;box-shadow:0 0 12px #ee8ecc90} }
 @media(max-width:1000px) { .hero-lyrics { width:290px; right:5.6%; bottom:70px; }.lyrics-current { font-size:30px; }.lyrics-ghost{font-size:22px}.spotlight-copy { padding:30px; }.spotlight-copy h2 { font-size:42px; } }
@@ -97,3 +97,15 @@ h2 em,.queen-signature em { font-family:Georgia,serif; color:var(--pink); font-w
 @media(prefers-reduced-motion:reduce) { *,*:before,*:after{animation:none!important;transition:none!important} }
 
 @media(max-width:560px) { .hero-content { top:32%; transform:translateY(-40%); } h1 { font-size:68px; } .hero-description { margin:18px 0; } .hero-content>.eyebrow { margin-bottom:18px; } .music-summary { margin-top:16px; padding-top:14px; } #music-details { padding-top:10px; } .music-volume { margin-top:10px; } }
+
+.section-modal::backdrop { animation:backdrop-arrive .24s ease-out; }
+.section-modal.is-closing { animation:panel-leave .2s ease-in forwards; pointer-events:none; }
+.modal-queen.is-closing { animation:drawer-leave .2s ease-in forwards; }
+.section-modal.is-closing::backdrop { animation:backdrop-leave .2s ease-in forwards; }
+@keyframes drawer-arrive { from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)} }
+@keyframes drawer-leave { from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(18px)} }
+@keyframes panel-leave { from{opacity:1;transform:scale(1)}to{opacity:0;transform:translateY(4px) scale(.99)} }
+@keyframes backdrop-arrive { from{opacity:0}to{opacity:1} }
+@keyframes backdrop-leave { from{opacity:1}to{opacity:0} }
+@media(max-width:700px) { .modal-queen { width:min(550px,100%); max-height:100dvh; } }
+@media(max-width:560px) { .modal-queen { width:100%; max-height:100dvh; } }
