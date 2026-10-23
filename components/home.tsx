@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { artworkAssets } from '../lib/artworks';
-import type { PlaybackState } from '../lib/soundtrack';
 import MusicPlayer from './music-player';
 import SectionModal from './section-modal';
-import Lyrics from './lyrics';
 
 type Panel = 'queen' | 'spotlight' | 'gallery';
 
@@ -13,7 +11,6 @@ export default function Home() {
   const [panel, setPanel] = useState<Panel | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [liked, setLiked] = useState(false);
-  const [playback, setPlayback] = useState<PlaybackState>({ time: 0, playing: false });
   useEffect(() => { try { setLiked(localStorage.getItem('qiyana-loved') === 'true'); } catch {} }, []);
   useEffect(() => {
     if (panel !== 'gallery' || selected === null) return;
@@ -41,11 +38,10 @@ export default function Home() {
           <button className="button" onClick={() => openPanel('spotlight')}>ENTER HER UNIVERSE <span>↗</span></button>
           <div className="hero-caption"><span/> EMPRESS OF THE ELEMENTS</div>
         </div>
-        <Lyrics playback={playback}/>
+        <MusicPlayer/>
       </section>
       <div className="hero-footer"><span>01 / THE QUEEN HAS ARRIVED</span><span className="footer-dedication">A LITTLE OBSESSED. ALWAYS.</span><span>© 2026</span></div>
     </div>
-    <MusicPlayer onPlaybackChange={setPlayback}/>
     {panel && <SectionModal kind={panel} title={panel === 'queen' ? '01 / THE EMPRESS' : panel === 'spotlight' ? '02 / IN THE SPOTLIGHT' : '03 / THE COLLECTION'} onClose={() => setPanel(null)}>
       {panel === 'queen' && <div className="queen-panel">
         <div className="queen-visual"><img src={'/images/' + artworkAssets[0].file} alt="Qiyana, Empress of the Elements"/><span>IXTAL’S FINEST.</span></div>

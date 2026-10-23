@@ -1,13 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { soundtrack, type PlaybackState } from '../lib/soundtrack';
+import { soundtrack } from '../lib/soundtrack';
+import Lyrics from './lyrics';
 
 const formatTime = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, '0')}`;
 
-export default function MusicPlayer({ onPlaybackChange }: { onPlaybackChange?: (state: PlaybackState) => void }) {
+export default function MusicPlayer() {
   const audio = useRef<HTMLAudioElement>(null);
-  const player = useRef<HTMLElement>(null);
   const closing = useRef(false);
   const playButton = useRef<HTMLButtonElement>(null);
   const scrubbing = useRef(false);
@@ -20,7 +20,6 @@ export default function MusicPlayer({ onPlaybackChange }: { onPlaybackChange?: (
   const [seekPreview, setSeekPreview] = useState<number | null>(null);
   const [intro, setIntro] = useState(true);
   const [leaving, setLeaving] = useState(false);
-  const [expanded, setExpanded] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -28,18 +27,6 @@ export default function MusicPlayer({ onPlaybackChange }: { onPlaybackChange?: (
   const [muted, setMuted] = useState(false);
   const [status, setStatus] = useState<'blocked' | 'error' | null>(null);
 
-  useEffect(() => {
-    onPlaybackChange?.({ time: seekPreview ?? position, playing });
-  }, [position, seekPreview, playing, onPlaybackChange]);
-
-  useEffect(() => {
-    if (!expanded) return;
-    const collapseOutside = (event: MouseEvent) => {
-      if (event.target instanceof Node && !player.current?.contains(event.target)) setExpanded(false);
-    };
-    document.addEventListener('click', collapseOutside, true);
-    return () => document.removeEventListener('click', collapseOutside, true);
-  }, [expanded]);
 
   useEffect(() => {
     const element = audio.current;
@@ -182,16 +169,15 @@ export default function MusicPlayer({ onPlaybackChange }: { onPlaybackChange?: (
       onDurationChange={event => { const value = event.currentTarget.duration; setDuration(Number.isFinite(value) ? value : 0); }}
       onError={() => { setPlaying(false); setStatus('error'); }} />
 
-    <aside ref={player} className={`music-player ${expanded ? 'is-expanded' : ''}`} aria-label={"Music player"} inert={intro}>
+    <aside className="hero-lyrics music-player" aria-label="Music and lyrics" inert={intro}>
+      <Lyrics playback={{ time: seekPreview ?? position, playing }}/>
       <div className="music-summary">
         <button ref={playButton} className="music-toggle" aria-label={playing ? "Pause music" : "Play music"}
           onClick={() => playing ? audio.current?.pause() : play()}><span aria-hidden="true">{playing ? 'Ⅱ' : '▶'}</span></button>
         <div className="music-track"><strong>{soundtrack.title}</strong><span>{soundtrack.artist}</span></div>
         <div className={`music-bars ${playing ? 'is-playing' : ''}`} aria-hidden="true"><i/><i/><i/><i/></div>
-        <button className="music-resize" aria-expanded={expanded} aria-controls="music-details" aria-label={expanded ? "Minimize player" : "Expand player"}
-          onClick={() => setExpanded(!expanded)}>{expanded ? '−' : '+'}</button>
       </div>
-      <div id="music-details" hidden={!expanded}>
+      <div id="music-details">
         <label className="music-progress"><span className="sr-only">{"Track position"}</span><input type="range" min="0" max={duration || 1} step=".1" value={Math.min(seekPreview ?? position, duration || 1)} disabled={!duration}
           onPointerDown={event => { beginSeek(); event.currentTarget.setPointerCapture(event.pointerId); }}
           onPointerUp={commitSeek} onPointerCancel={commitSeek} onLostPointerCapture={commitSeek} onBlur={commitSeek}
