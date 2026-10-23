@@ -52,3 +52,20 @@
   35% { background: #05030aff; backdrop-filter: blur(32px); opacity: 1; }
   100% { background: #05030a00; backdrop-filter: blur(0); opacity: 0; }
 }
+
+/* Compact controls keep the artwork dominant. */
+.hero-lyrics.music-player { width:280px; }
+.music-player .lyrics-label { font-size:7px; letter-spacing:1.1px; padding:5px 0; }
+.music-player .lyrics-ghost { font-size:18px; margin:12px 0 6px; }
+.music-player .lyrics-current { font-size:27px; margin-bottom:15px; }
+.music-player .music-summary { gap:10px; margin-top:12px; padding-top:12px; }
+.music-player .music-toggle { width:30px; height:30px; font-size:11px; }
+.music-player .music-track strong { font-size:11px; }
+.music-player .music-track > span { font-size:7px; }
+.music-player #music-details { padding:8px 0 0; }
+.music-player .music-progress { padding:6px 0; }
+.music-player .music-times { font-size:8px; margin-top:2px; }
+.music-volume-control { position:relative; }
+.music-player .volume-trigger { width:28px; height:30px; color:var(--pink); font-size:16px; }
+.music-player .music-volume { position:absolute; bottom:calc(100% + 10px); right:0; width:210px; padding:10px 12px; margin:0; z-index:5; border:1px solid #ee8ecc35; background:#110d1df5; box-shadow:0 8px 30px #0007; }
+@media(max-width:560px) { .hero-lyrics.music-player { width:min(280px,calc(100% - 12%)); } }

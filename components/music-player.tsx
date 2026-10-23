@@ -10,6 +10,8 @@ export default function MusicPlayer() {
   const audio = useRef<HTMLAudioElement>(null);
   const closing = useRef(false);
   const playButton = useRef<HTMLButtonElement>(null);
+  const volumeControl = useRef<HTMLDivElement>(null);
+  const [volumeOpen, setVolumeOpen] = useState(false);
   const scrubbing = useRef(false);
   const seekTarget = useRef(0);
   const resumeAfterSeek = useRef(false);
@@ -26,6 +28,15 @@ export default function MusicPlayer() {
   const [volume, setVolume] = useState(.35);
   const [muted, setMuted] = useState(false);
   const [status, setStatus] = useState<'blocked' | 'error' | null>(null);
+
+  useEffect(() => {
+    if (!volumeOpen) return;
+    const close = (event: PointerEvent) => {
+      if (event.target instanceof Node && !volumeControl.current?.contains(event.target)) setVolumeOpen(false);
+    };
+    document.addEventListener('pointerdown', close);
+    return () => document.removeEventListener('pointerdown', close);
+  }, [volumeOpen]);
 
 
   useEffect(() => {
@@ -176,6 +187,10 @@ export default function MusicPlayer() {
           onClick={() => playing ? audio.current?.pause() : play()}><span aria-hidden="true">{playing ? 'Ⅱ' : '▶'}</span></button>
         <div className="music-track"><strong>{soundtrack.title}</strong><span>{soundtrack.artist}</span></div>
         <div className={`music-bars ${playing ? 'is-playing' : ''}`} aria-hidden="true"><i/><i/><i/><i/></div>
+        <div className="music-volume-control" ref={volumeControl} onKeyDown={event => { if (event.key === 'Escape') { setVolumeOpen(false); event.currentTarget.querySelector<HTMLButtonElement>('.volume-trigger')?.focus(); } }}>
+          <button className="volume-trigger" aria-label="Adjust volume" aria-expanded={volumeOpen} aria-controls="volume-popover" onClick={() => setVolumeOpen(!volumeOpen)}>{muted || volume === 0 ? '○' : '◉'}</button>
+          {volumeOpen && <div className="music-volume" id="volume-popover"><button aria-label={muted ? 'Unmute' : 'Mute'} aria-pressed={muted} onClick={() => setMuted(!muted)}>{muted ? '○' : '◉'}</button><label><span className="sr-only">Volume</span><input type="range" min="0" max="1" step=".01" value={muted ? 0 : volume} onChange={event => { setVolume(Number(event.target.value)); setMuted(false); }}/></label><span>{Math.round((muted ? 0 : volume) * 100)}%</span></div>}
+        </div>
       </div>
       <div id="music-details">
         <label className="music-progress"><span className="sr-only">{"Track position"}</span><input type="range" min="0" max={duration || 1} step=".1" value={Math.min(seekPreview ?? position, duration || 1)} disabled={!duration}
@@ -193,8 +208,6 @@ export default function MusicPlayer() {
             if (standalone) seekTimer.current = setTimeout(commitSeek, 180);
           }}/></label>
         <div className="music-times"><span>{formatTime(seekPreview ?? position)}</span><span>{formatTime(duration)}</span></div>
-        <div className="music-volume"><button aria-label={muted ? "Unmute" : "Mute"} aria-pressed={muted} onClick={() => setMuted(!muted)}>{muted ? '○' : '◉'}</button>
-          <label><span className="sr-only">{"Volume"}</span><input type="range" min="0" max="1" step=".01" value={muted ? 0 : volume} onChange={event => { setVolume(Number(event.target.value)); setMuted(false); }}/></label><span>{Math.round((muted ? 0 : volume) * 100)}%</span></div>
       </div>
       {status && <p className="music-status" role="status">{(status === 'blocked' ? "Click anywhere or press Space to enable music." : "Audio unavailable. Try again.")}</p>}
     </aside>
