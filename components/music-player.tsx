@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dictionary } from '../i18n/dictionaries';
 
-const INTRO_KEY = 'qiyana-music-intro-seen';
 const formatTime = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, '0')}`;
 
 export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
@@ -32,7 +31,7 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
     if (!element) return;
     setStatus(null);
     if (element.error) element.load();
-    // Call play directly inside the user gesture, before animations or timers.
+    // Gesture calls play immediately; timer calls let the browser decide autoplay.
     void element.play().catch(error => {
       setStatus(error?.name === 'NotAllowedError' ? 'blocked' : 'error');
     });
@@ -42,18 +41,38 @@ export default function MusicPlayer({ text }: { text: Dictionary['music'] }) {
     if (closing.current) return;
     closing.current = true;
     if (withMusic) play();
-    try { sessionStorage.setItem(INTRO_KEY, 'true'); } catch { /* Storage can be disabled. */ }
     setLeaving(true);
   }, [play]);
 
   useEffect(() => {
-    try {
-      if (sessionStorage.getItem(INTRO_KEY)) { setIntro(false); return; }
-    } catch { /* The intro still works without storage. */ }
     const interval = window.setInterval(() => setSeconds(value => Math.max(0, value - 1)), 1000);
-    const timeout = window.setTimeout(() => dismiss(false), 5000);
+    const timeout = window.setTimeout(() => dismiss(true), 5000);
     return () => { window.clearInterval(interval); window.clearTimeout(timeout); };
   }, [dismiss]);
+
+  useEffect(() => {
+    if (status !== 'blocked') return;
+    // A rejected timer attempt must be retried inside a real user gesture.
+    // No synthetic clicks or muted autoplay tricks can grant sound permission.
+    const retryOnPointer = (event: PointerEvent) => {
+      // Let the play button's click handler own its gesture to avoid toggling twice.
+      if (event.target instanceof Element && event.target.closest('.music-toggle')) return;
+      play();
+    };
+    const retryOnKey = (event: KeyboardEvent) => {
+      if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea')) return;
+      if (event.code === 'Space' || event.key === 'Enter') {
+        event.preventDefault();
+        play();
+      }
+    };
+    window.addEventListener('pointerdown', retryOnPointer, { once: true });
+    window.addEventListener('keydown', retryOnKey);
+    return () => {
+      window.removeEventListener('pointerdown', retryOnPointer);
+      window.removeEventListener('keydown', retryOnKey);
+    };
+  }, [status, play]);
 
   useEffect(() => {
     if (!intro) return;
