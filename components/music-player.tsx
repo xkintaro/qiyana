@@ -6,7 +6,7 @@ import Lyrics from './lyrics';
 
 const formatTime = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, '0')}`;
 
-export default function MusicPlayer() {
+export default function MusicPlayer({ children }: { children?: React.ReactNode }) {
   const audio = useRef<HTMLAudioElement>(null);
   const closing = useRef(false);
   const playButton = useRef<HTMLButtonElement>(null);
@@ -210,6 +210,7 @@ export default function MusicPlayer() {
         <div className="music-times"><span>{formatTime(seekPreview ?? position)}</span><span>{formatTime(duration)}</span></div>
       </div>
       {status && <p className="music-status" role="status">{(status === 'blocked' ? "Click anywhere or press Space to enable music." : "Audio unavailable. Try again.")}</p>}
+      {children}
     </aside>
 
     {intro && <div className={`music-intro ${leaving ? 'is-leaving' : ''}`} role="dialog" aria-modal="true" aria-label={"Enter Qiyana’s universe"}>

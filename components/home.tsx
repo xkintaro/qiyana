@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { artworkAssets } from '../lib/artworks';
 import MusicPlayer from './music-player';
 import SectionModal from './section-modal';
+import SkinSlider from './skin-slider';
 
 type Panel = 'queen' | 'spotlight' | 'gallery';
 
@@ -14,6 +15,7 @@ export default function Home() {
   const fullscreenOwned = useRef(false);
   const restoreFocus = useRef(false);
   const [focusMode, setFocusMode] = useState(false);
+  const [activeSkin, setActiveSkin] = useState(artworkAssets.length - 1);
   const [panel, setPanel] = useState<Panel | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [liked, setLiked] = useState(false);
@@ -70,7 +72,7 @@ export default function Home() {
 
   return <main ref={experience} className={`experience${focusMode ? ' is-focus-mode' : ''}`}>
     <div className="hero-scene" inert={panel !== null}>
-      <img className="hero-image" src="/images/lc5iafb6_20261024010904243.webp" alt="Qiyana surrounded by neon blue and pink light" fetchPriority="high"/>
+      <img key={activeSkin} className="hero-image" src={activeSkin === artworkAssets.length - 1 ? '/images/lc5iafb6_20261024010904243.webp' : '/images/' + artworkAssets[activeSkin].file} alt={artworkAssets[activeSkin].name} fetchPriority="high"/>
       <div className="hero-shade"/>
       <header className="nav" inert={focusMode} aria-hidden={focusMode}><a className="brand" href="/" aria-label="Qiyana home">QIYANA<span>.</span></a><nav aria-label="Main navigation">
         <button onClick={() => openPanel('queen')} aria-haspopup="dialog">THE EMPRESS</button>
@@ -83,7 +85,7 @@ export default function Home() {
           <button className="button" onClick={() => openPanel('spotlight')}>ENTER HER UNIVERSE <span>↗</span></button>
           <div className="hero-caption"><span/> EMPRESS OF THE ELEMENTS</div>
         </div>
-        <MusicPlayer/>
+        <MusicPlayer><SkinSlider active={activeSkin} onChange={setActiveSkin}/></MusicPlayer>
       </section>
       {focusMode && <button ref={exitFocus} className="exit-focus" onClick={leaveFocusMode} aria-label="Exit fullscreen artwork view" title="Exit artwork view (Esc)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M16 21v-5h5M3 16h5v5"/></svg><span>ESC</span></button>}
     </div>
