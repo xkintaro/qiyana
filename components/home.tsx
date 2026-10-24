@@ -13,6 +13,7 @@ export default function Home() {
   const experience = useRef<HTMLElement>(null);
   const focusToggle = useRef<HTMLButtonElement>(null);
   const exitFocus = useRef<HTMLButtonElement>(null);
+  const customization = useRef<HTMLDivElement>(null);
   const fullscreenOwned = useRef(false);
   const restoreFocus = useRef(false);
   const [focusMode, setFocusMode] = useState(false);
@@ -26,6 +27,7 @@ export default function Home() {
     if (document.fullscreenElement === experience.current) void document.exitFullscreen().catch(() => {});
   };
   const enterFocusMode = () => {
+    customization.current?.hidePopover();
     restoreFocus.current = true;
     setFocusMode(true);
     const element = experience.current;
@@ -68,7 +70,7 @@ export default function Home() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [panel, selected]);
-  const openPanel = (next: Panel) => { setSelected(null); setPanel(next); };
+  const openPanel = (next: Panel) => { customization.current?.hidePopover(); setSelected(null); setPanel(next); };
   const love = () => { setLiked(!liked); try { localStorage.setItem('qiyana-loved', String(!liked)); } catch {} };
 
   return <main ref={experience} className={`experience${focusMode ? ' is-focus-mode' : ''}`}>
@@ -79,14 +81,20 @@ export default function Home() {
         <button onClick={() => openPanel('queen')} aria-haspopup="dialog">THE EMPRESS</button>
         <button onClick={() => openPanel('spotlight')} aria-haspopup="dialog">SPOTLIGHT <span className="tiny-dot"/></button>
         <button onClick={() => openPanel('gallery')} aria-haspopup="dialog">GALLERY <span className="nav-count">11</span></button>
+        <button className="customize-toggle" popoverTarget="customization-menu" aria-label="Customize appearance" title="Customize appearance"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="var(--bg)"/><circle cx="15" cy="17" r="3" fill="var(--bg)"/></svg></button>
         <button ref={focusToggle} className="focus-toggle" onClick={enterFocusMode} aria-label="View artwork fullscreen" title="View artwork fullscreen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5"/></svg></button>
       </nav></header>
+      <div ref={customization} id="customization-menu" className="customization-menu" popover="auto" role="dialog" aria-labelledby="customization-title">
+        <div className="customization-header"><span id="customization-title">CUSTOMIZE</span><button popoverTarget="customization-menu" popoverTargetAction="hide" aria-label="Close customization">✕</button></div>
+        <p>Make her world your own.</p>
+        <SkinSlider active={activeSkin} onChange={setActiveSkin}/>
+      </div>
       <section className="hero" aria-labelledby={focusMode ? undefined : 'hero-title'} aria-label={focusMode ? 'Qiyana artwork and music' : undefined}>
         <div className="hero-content" inert={focusMode} aria-hidden={focusMode}><p className="eyebrow"><span/> BEYOND IXTAL</p><h1 id="hero-title">HER WORLD.<br/><span>HER RULES.</span></h1><p className="hero-description">Some take the stage.<br/>She is the stage.</p>
           <button className="button" onClick={() => openPanel('spotlight')}>ENTER HER UNIVERSE <span>↗</span></button>
           <div className="hero-caption"><span/> EMPRESS OF THE ELEMENTS</div>
         </div>
-        <MusicPlayer><SkinSlider active={activeSkin} onChange={setActiveSkin}/></MusicPlayer>
+        <MusicPlayer/>
       </section>
       {focusMode && <button ref={exitFocus} className="exit-focus" onClick={leaveFocusMode} aria-label="Exit fullscreen artwork view" title="Exit artwork view (Esc)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M16 21v-5h5M3 16h5v5"/></svg><span>ESC</span></button>}
     </div>
