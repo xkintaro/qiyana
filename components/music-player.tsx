@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Play, Pause, VolumeX, Volume2, Music2, ArrowUpRight, AudioLines } from 'lucide-react';
-import { soundtrack } from '../lib/soundtrack';
+import { Play, Pause, VolumeX, Volume2, Music2, ArrowUpRight, AudioLines, SkipBack, SkipForward, ListMusic, X, Repeat, Repeat1 } from 'lucide-react';
+import { tracks } from '../lib/soundtrack';
 import Lyrics from './lyrics';
 
 const formatTime = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, '0')}`;
@@ -13,7 +13,12 @@ export default function MusicPlayer() {
   const closing = useRef(false);
   const playButton = useRef<HTMLButtonElement>(null);
   const volumeControl = useRef<HTMLDivElement>(null);
+  const playlistControl = useRef<HTMLDivElement>(null);
   const [volumeOpen, setVolumeOpen] = useState(false);
+  const [playlistOpen, setPlaylistOpen] = useState(false);
+  const [activeTrack, setActiveTrack] = useState(0);
+  const [repeatOne, setRepeatOne] = useState(false);
+  const soundtrack = tracks[activeTrack];
   const scrubbing = useRef(false);
   const seekTarget = useRef(0);
   const resumeAfterSeek = useRef(false);
@@ -54,13 +59,14 @@ export default function MusicPlayer() {
   }, [volume, muted, settingsLoaded]);
 
   useEffect(() => {
-    if (!volumeOpen) return;
+    if (!volumeOpen && !playlistOpen) return;
     const close = (event: PointerEvent) => {
       if (event.target instanceof Node && !volumeControl.current?.contains(event.target)) setVolumeOpen(false);
+      if (event.target instanceof Node && !playlistControl.current?.contains(event.target)) setPlaylistOpen(false);
     };
     document.addEventListener('pointerdown', close);
     return () => document.removeEventListener('pointerdown', close);
-  }, [volumeOpen]);
+  }, [volumeOpen, playlistOpen]);
 
 
   useEffect(() => {
@@ -76,9 +82,33 @@ export default function MusicPlayer() {
     if (element.error) element.load();
     // Start inside the user gesture, before the exit animation.
     void element.play().catch(error => {
+      if (error?.name === 'AbortError') return; // A newer track selection can cancel this request.
       setStatus(error?.name === 'NotAllowedError' ? 'blocked' : 'error');
     });
   }, []);
+
+  const selectTrack = (index: number, startPlaying = !audio.current?.paused) => {
+    const element = audio.current;
+    if (!element) return;
+    if (fadeFrame.current !== null) cancelAnimationFrame(fadeFrame.current);
+    if (seekTimer.current) clearTimeout(seekTimer.current);
+    fadeFrame.current = null;
+    seekTimer.current = null;
+    scrubbing.current = false;
+    settlingSeek.current = false;
+    resumeAfterSeek.current = false;
+    const next = (index + tracks.length) % tracks.length;
+    element.pause();
+    element.volume = desiredVolume.current;
+    setActiveTrack(next);
+    setPosition(0);
+    setSeekPreview(null);
+    setDuration(0);
+    setStatus(null);
+    element.src = tracks[next].src;
+    element.load();
+    if (startPlaying) play();
+  };
 
   const finishSeek = useCallback(() => {
     const element = audio.current;
@@ -196,7 +226,8 @@ export default function MusicPlayer() {
   }, [volume, muted]);
 
   return <>
-    <audio ref={audio} src={soundtrack.src} preload="metadata" loop
+    <audio ref={audio} src={tracks[0].src} preload="metadata" loop={repeatOne}
+      onEnded={() => selectTrack(activeTrack + 1, true)}
       onPlay={() => { setPlaying(true); setStatus(null); }} onPause={() => setPlaying(false)}
       onTimeUpdate={event => { if (!scrubbing.current && !settlingSeek.current) setPosition(event.currentTarget.currentTime); }}
       onSeeked={finishSeek}
@@ -205,16 +236,23 @@ export default function MusicPlayer() {
       onError={() => { setPlaying(false); setStatus('error'); }} />
 
     <aside className="hero-lyrics music-player" aria-label="Music and lyrics" inert={intro}>
-      <Lyrics playback={{ time: seekPreview ?? position, playing }}/>
+      <Lyrics track={soundtrack} playback={{ time: seekPreview ?? position, playing }}/>
       <div className="music-summary">
         <button ref={playButton} className="music-toggle" aria-label={playing ? "Pause music" : "Play music"}
           onClick={() => playing ? audio.current?.pause() : play()}><span aria-hidden="true">{playing ? <Pause size={14} strokeWidth={1.5} aria-hidden="true"/> : <Play size={14} strokeWidth={1.5} aria-hidden="true" fill="currentColor"/>}</span></button>
-        <div className="music-track"><strong>{soundtrack.title}</strong><span>{soundtrack.artist}</span></div>
-        <div className={`music-bars ${playing ? 'is-playing' : ''}`} aria-hidden="true"><AudioLines size={20} strokeWidth={1.5} aria-hidden="true"/></div>
+        <div className="music-track" aria-live="polite"><strong>{soundtrack.title}</strong><span>{soundtrack.artist}</span></div>
+        <div className="music-skip-controls"><button aria-label="Previous track" onClick={() => selectTrack(activeTrack - 1)}><SkipBack size={15} strokeWidth={1.5} aria-hidden="true"/></button><button aria-label="Next track" onClick={() => selectTrack(activeTrack + 1)}><SkipForward size={15} strokeWidth={1.5} aria-hidden="true"/></button></div>
         <div className="music-volume-control" ref={volumeControl} onKeyDown={event => { if (event.key === 'Escape') { setVolumeOpen(false); event.currentTarget.querySelector<HTMLButtonElement>('.volume-trigger')?.focus(); } }}>
           <button className="volume-trigger" aria-label="Adjust volume" aria-expanded={volumeOpen} aria-controls="volume-popover" onClick={() => setVolumeOpen(!volumeOpen)}>{muted || volume === 0 ? <VolumeX size={16} strokeWidth={1.5} aria-hidden="true"/> : <Volume2 size={16} strokeWidth={1.5} aria-hidden="true"/>}</button>
           {volumeOpen && <div className="music-volume" id="volume-popover"><button aria-label={muted ? 'Unmute' : 'Mute'} aria-pressed={muted} onClick={() => setMuted(!muted)}>{muted ? <VolumeX size={16} strokeWidth={1.5} aria-hidden="true"/> : <Volume2 size={16} strokeWidth={1.5} aria-hidden="true"/>}</button><label><span className="sr-only">Volume</span><input type="range" min="0" max="1" step=".01" value={muted ? 0 : volume} onChange={event => { setVolume(Number(event.target.value)); setMuted(false); }}/></label><span>{Math.round((muted ? 0 : volume) * 100)}%</span></div>}
         </div>
+      </div>
+      <div className="music-library-row">
+        <div ref={playlistControl} className="music-library" onKeyDown={event => { if (event.key === 'Escape') { setPlaylistOpen(false); event.currentTarget.querySelector<HTMLButtonElement>('.playlist-trigger')?.focus(); } }}>
+          <button className="playlist-trigger" aria-expanded={playlistOpen} aria-controls="music-playlist" onClick={() => { setPlaylistOpen(!playlistOpen); setVolumeOpen(false); }}><ListMusic size={15} strokeWidth={1.5} aria-hidden="true"/> PLAYLIST <span>{activeTrack + 1} / {tracks.length}</span></button>
+          {playlistOpen && <section id="music-playlist" className="music-playlist" aria-label="Playlist"><div className="playlist-heading"><span>YOUR SOUNDTRACK</span><button aria-label="Close playlist" onClick={() => setPlaylistOpen(false)}><X size={15} strokeWidth={1.5} aria-hidden="true"/></button></div><ol>{tracks.map((track, index) => <li key={track.src}><button aria-label={`Play ${track.title} by ${track.artist}`} aria-current={index === activeTrack ? 'true' : undefined} onClick={() => { selectTrack(index, true); setPlaylistOpen(false); }}><span className="playlist-number">{index === activeTrack && playing ? <AudioLines size={16} strokeWidth={1.5} aria-hidden="true"/> : String(index + 1).padStart(2, '0')}</span><span><strong>{track.title}</strong><small>{track.artist}</small></span><Play size={13} strokeWidth={1.5} aria-hidden="true"/></button></li>)}</ol></section>}
+        </div>
+        <button className="music-repeat" aria-label="Repeat current track" aria-pressed={repeatOne} title={repeatOne ? 'Repeating this track' : 'Playing all tracks in order'} onClick={() => setRepeatOne(!repeatOne)}>{repeatOne ? <Repeat1 size={15} strokeWidth={1.5} aria-hidden="true"/> : <Repeat size={15} strokeWidth={1.5} aria-hidden="true"/>}</button>
       </div>
       <div id="music-details">
         <label className="music-progress"><span className="sr-only">{"Track position"}</span><input type="range" min="0" max={duration || 1} step=".1" value={Math.min(seekPreview ?? position, duration || 1)} disabled={!duration}
