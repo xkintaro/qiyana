@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Play, Pause, VolumeX, Volume2, Music2, ArrowUpRight, AudioLines } from 'lucide-react';
 import { soundtrack } from '../lib/soundtrack';
 import Lyrics from './lyrics';
 
@@ -184,12 +185,12 @@ export default function MusicPlayer() {
       <Lyrics playback={{ time: seekPreview ?? position, playing }}/>
       <div className="music-summary">
         <button ref={playButton} className="music-toggle" aria-label={playing ? "Pause music" : "Play music"}
-          onClick={() => playing ? audio.current?.pause() : play()}><span aria-hidden="true">{playing ? 'Ⅱ' : '▶'}</span></button>
+          onClick={() => playing ? audio.current?.pause() : play()}><span aria-hidden="true">{playing ? <Pause size={14} strokeWidth={1.5} aria-hidden="true"/> : <Play size={14} strokeWidth={1.5} aria-hidden="true" fill="currentColor"/>}</span></button>
         <div className="music-track"><strong>{soundtrack.title}</strong><span>{soundtrack.artist}</span></div>
-        <div className={`music-bars ${playing ? 'is-playing' : ''}`} aria-hidden="true"><i/><i/><i/><i/></div>
+        <div className={`music-bars ${playing ? 'is-playing' : ''}`} aria-hidden="true"><AudioLines size={20} strokeWidth={1.5} aria-hidden="true"/></div>
         <div className="music-volume-control" ref={volumeControl} onKeyDown={event => { if (event.key === 'Escape') { setVolumeOpen(false); event.currentTarget.querySelector<HTMLButtonElement>('.volume-trigger')?.focus(); } }}>
-          <button className="volume-trigger" aria-label="Adjust volume" aria-expanded={volumeOpen} aria-controls="volume-popover" onClick={() => setVolumeOpen(!volumeOpen)}>{muted || volume === 0 ? '○' : '◉'}</button>
-          {volumeOpen && <div className="music-volume" id="volume-popover"><button aria-label={muted ? 'Unmute' : 'Mute'} aria-pressed={muted} onClick={() => setMuted(!muted)}>{muted ? '○' : '◉'}</button><label><span className="sr-only">Volume</span><input type="range" min="0" max="1" step=".01" value={muted ? 0 : volume} onChange={event => { setVolume(Number(event.target.value)); setMuted(false); }}/></label><span>{Math.round((muted ? 0 : volume) * 100)}%</span></div>}
+          <button className="volume-trigger" aria-label="Adjust volume" aria-expanded={volumeOpen} aria-controls="volume-popover" onClick={() => setVolumeOpen(!volumeOpen)}>{muted || volume === 0 ? <VolumeX size={16} strokeWidth={1.5} aria-hidden="true"/> : <Volume2 size={16} strokeWidth={1.5} aria-hidden="true"/>}</button>
+          {volumeOpen && <div className="music-volume" id="volume-popover"><button aria-label={muted ? 'Unmute' : 'Mute'} aria-pressed={muted} onClick={() => setMuted(!muted)}>{muted ? <VolumeX size={16} strokeWidth={1.5} aria-hidden="true"/> : <Volume2 size={16} strokeWidth={1.5} aria-hidden="true"/>}</button><label><span className="sr-only">Volume</span><input type="range" min="0" max="1" step=".01" value={muted ? 0 : volume} onChange={event => { setVolume(Number(event.target.value)); setMuted(false); }}/></label><span>{Math.round((muted ? 0 : volume) * 100)}%</span></div>}
         </div>
       </div>
       <div id="music-details">
@@ -214,10 +215,10 @@ export default function MusicPlayer() {
 
     {intro && <div className={`music-intro ${leaving ? 'is-leaving' : ''}`} role="dialog" aria-modal="true" aria-label={"Enter Qiyana’s universe"}>
       <button className="music-enter" autoFocus disabled={leaving} onClick={dismiss} onKeyDown={event => { if (event.key === 'Tab') event.preventDefault(); }}>
-        <span className="intro-orbit" aria-hidden="true">♫</span>
+        <span className="intro-orbit" aria-hidden="true"><Music2 size={30} strokeWidth={1.5} aria-hidden="true"/></span>
         <span className="eyebrow">{"SET THE MOOD"}</span>
         <span className="intro-title">{"Her world. Your soundtrack."}</span>
-        <span className="intro-action">{"Click anywhere or press Space"}<span aria-hidden="true"> ↗</span></span>
+        <span className="intro-action">{"Click anywhere or press Space"}<span aria-hidden="true"> <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true"/></span></span>
         <span className="intro-hint">{"Enter with music. Make yourself at home."}</span>
       </button>
     </div>}

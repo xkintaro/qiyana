@@ -9,14 +9,6 @@
 .music-track strong { font-size: 12px; font-weight: 500; letter-spacing: .5px; }
 .music-track > span { font-size: 8px; color: var(--muted); }
 .music-bars { height: 20px; display: flex; align-items: center; gap: 3px; }
-.music-bars i { width: 2px; height: 4px; background: var(--pink); opacity: .5; transform-origin: center; }
-.music-bars i:nth-child(2) { height: 15px; }
-.music-bars i:nth-child(3) { height: 10px; }
-.music-bars i:nth-child(4) { height: 7px; }
-.music-bars.is-playing i { animation: music-pulse .85s ease-in-out infinite alternate; opacity: .9; }
-.music-bars.is-playing i:nth-child(2) { animation-delay: -.3s; }
-.music-bars.is-playing i:nth-child(3) { animation-delay: -.55s; }
-.music-bars.is-playing i:nth-child(4) { animation-delay: -.15s; }
 #music-details { padding: 17px 3px 2px; }
 .music-player input[type=range] { width: 100%; height: 3px; display: block; accent-color: var(--pink); cursor: pointer; }
 .music-player input:disabled { cursor: default; opacity: .35; }
@@ -39,7 +31,7 @@
 .music-intro.is-leaving { animation: intro-dissolve .7s ease-in-out forwards; pointer-events: none; }
 .music-intro.is-leaving .music-enter { transition: opacity .25s, filter .4s; opacity: 0; filter: blur(12px); }
 @keyframes intro-dissolve { 0% { background: #090711ce; backdrop-filter: blur(18px); opacity: 1; } 35% { background: #05030af5; backdrop-filter: blur(28px); opacity: 1; } 100% { background: #05030a00; backdrop-filter: blur(0); opacity: 0; } }
-@keyframes music-pulse { from { transform: scaleY(.4); } to { transform: scaleY(1.3); } }
+@keyframes music-pulse { from { opacity: .45; } to { opacity: 1; } }
 @media (max-width: 560px) { .intro-title { max-width: 320px; } .intro-action { font-size: 11px; } .intro-hint { max-width: 260px; } }
 @media (prefers-reduced-motion: reduce) { .music-intro.is-leaving { opacity: 0; } }
 
@@ -148,3 +140,13 @@
   .experience .hero-lyrics.music-player { padding:10px 14px; }
   .experience .music-player .lyrics-current { font-size:21px; margin-bottom:7px; }
 }
+
+/* Keep SVG controls aligned with the original compact icon layout. */
+.lucide { flex-shrink: 0; vertical-align: middle; }
+.music-toggle, .volume-trigger, .music-volume button, .skin-slider .skin-arrow,
+.modal-close, .customization-header button { display: inline-flex; align-items: center; justify-content: center; }
+.mobile-navigation nav button > span { display: inline-flex; align-items: center; gap: 6px; }
+.back-to-grid, .viewer-controls button, .art-viewer figcaption a { display: inline-flex; align-items: center; gap: 6px; }
+.music-bars svg { opacity: .5; }
+.music-bars.is-playing svg { animation: music-pulse .85s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .music-bars.is-playing svg { animation: none; opacity: .9; } }

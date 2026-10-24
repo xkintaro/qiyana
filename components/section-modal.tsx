@@ -1,5 +1,6 @@
 'use client';
 
+import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 export default function SectionModal({ kind, title, onClose, children }: {
@@ -27,5 +28,5 @@ export default function SectionModal({ kind, title, onClose, children }: {
     if (event.target !== event.currentTarget) return;
     const rect = event.currentTarget.getBoundingClientRect();
     if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) requestClose();
-  }}><div className="modal-topbar"><span id="modal-title">{title}</span><button className="modal-close" onClick={requestClose} disabled={closing} aria-label="Close panel" autoFocus>✕</button></div>{children}</dialog>;
+  }}><div className="modal-topbar"><span id="modal-title">{title}</span><button className="modal-close" onClick={requestClose} disabled={closing} aria-label="Close panel" autoFocus><X size={16} strokeWidth={1.5} aria-hidden="true"/></button></div>{children}</dialog>;
 }
