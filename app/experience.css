@@ -11,7 +11,7 @@ button:focus-visible,a:focus-visible,input:focus-visible { outline:2px solid var
 .experience { min-height:100svh; }
 .hero-scene { position:relative; height:100svh; min-height:600px; overflow:hidden; isolation:isolate; }
 .hero-image,.hero-shade { position:absolute; inset:0; width:100%; height:100%; z-index:-2; }
-.hero-image { object-fit:cover; object-position:65% center; animation:scene-arrive .5s ease-out; }
+.hero-image { object-fit:cover; object-position:65% center; }
 .hero-shade { z-index:-1; background:linear-gradient(90deg,#0a0912e8 0%,#0a09127a 35%,#0a091205 75%),linear-gradient(0deg,#0a0912f7,transparent 45%),linear-gradient(180deg,#0a0912b3,transparent 25%); }
 .nav { position:relative; height:92px; margin:0 5.6%; display:flex; justify-content:space-between; align-items:center; }
 .brand { font-size:25px; font-weight:700; letter-spacing:3px; }
@@ -86,7 +86,7 @@ h2 em,.queen-signature em { font-family:Georgia,serif; color:var(--pink); font-w
 .art-card { background:none; border:0; padding:0; text-align:left; }.art-image { aspect-ratio:1.7; position:relative; overflow:hidden; background:#1b1423; }.art-image img { width:100%; height:100%; object-fit:cover; transition:transform .4s; }.art-card:hover img { transform:scale(1.05); }.art-image>span { position:absolute; right:10px; bottom:10px; background:#0a0613a8; padding:4px 8px; color:var(--pink); }
 .art-meta { display:flex; justify-content:space-between; margin-top:13px; font-size:6px; letter-spacing:1.5px; color:#9c8caa; }.art-card h3 { font-weight:500; font-size:12px; line-height:1.5; margin:8px 0 0; }
 .back-to-grid { border:0; background:none; color:var(--pink); font-size:9px; letter-spacing:1px; padding:5px 0 20px; }.art-viewer figure { margin:0; }.art-viewer figure>img { width:100%; max-height:55dvh; object-fit:contain; background:#09070e; display:block; }.art-viewer figcaption { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:20px 0; }.art-viewer h3 { font-size:20px; font-weight:500; margin:10px 0 0; }.art-viewer figcaption a { font-size:8px; letter-spacing:1px; color:var(--pink); }.viewer-controls { display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); padding-top:20px; }.viewer-controls button { background:none; border:0; padding:8px 0; font-size:9px; letter-spacing:1px; color:#d2b6d1; }.viewer-controls>span { font-size:7px; color:var(--muted); letter-spacing:1px; }
-@keyframes scene-arrive { from{filter:blur(12px)}to{filter:blur(0)} }
+
 @keyframes panel-arrive { from{opacity:0;transform:translateY(6px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)} }
 @keyframes line-arrive { from{opacity:.2;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
 @keyframes lyric-glow { from{opacity:.4;box-shadow:0 0 0 #ee8ecc00}to{opacity:1;box-shadow:0 0 12px #ee8ecc90} }
@@ -129,3 +129,6 @@ h2 em,.queen-signature em { font-family:Georgia,serif; color:var(--pink); font-w
 .exit-focus span { font-size:8px; letter-spacing:1px; }
 .exit-focus:hover,.exit-focus:focus-visible { opacity:1; color:var(--pink); }
 @media(max-width:560px) { .nav nav { gap:9px; } .nav .focus-toggle { padding:8px 0 8px 5px; margin:0; } .exit-focus { top:20px; right:6%; } .exit-focus span { display:none; } }
+
+.background-reveal { animation:background-reveal .65s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes background-reveal { from{opacity:0;filter:blur(4px)}to{opacity:1;filter:blur(0)} }

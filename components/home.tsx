@@ -5,6 +5,7 @@ import { artworkAssets } from '../lib/artworks';
 import MusicPlayer from './music-player';
 import SectionModal from './section-modal';
 import SkinSlider from './skin-slider';
+import BackgroundArtwork from './background-artwork';
 
 type Panel = 'queen' | 'spotlight' | 'gallery';
 
@@ -72,7 +73,7 @@ export default function Home() {
 
   return <main ref={experience} className={`experience${focusMode ? ' is-focus-mode' : ''}`}>
     <div className="hero-scene" inert={panel !== null}>
-      <img key={activeSkin} className="hero-image" src={activeSkin === artworkAssets.length - 1 ? '/images/lc5iafb6_20261024010904243.webp' : '/images/' + artworkAssets[activeSkin].file} alt={artworkAssets[activeSkin].name} fetchPriority="high"/>
+      <BackgroundArtwork active={activeSkin}/>
       <div className="hero-shade"/>
       <header className="nav" inert={focusMode} aria-hidden={focusMode}><a className="brand" href="/" aria-label="Qiyana home">QIYANA<span>.</span></a><nav aria-label="Main navigation">
         <button onClick={() => openPanel('queen')} aria-haspopup="dialog">THE EMPRESS</button>
