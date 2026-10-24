@@ -14,6 +14,7 @@ export default function Home() {
   const focusToggle = useRef<HTMLButtonElement>(null);
   const exitFocus = useRef<HTMLButtonElement>(null);
   const customization = useRef<HTMLDivElement>(null);
+  const mobileNavigation = useRef<HTMLDivElement>(null);
   const fullscreenOwned = useRef(false);
   const restoreFocus = useRef(false);
   const [focusMode, setFocusMode] = useState(false);
@@ -27,6 +28,7 @@ export default function Home() {
     if (document.fullscreenElement === experience.current) void document.exitFullscreen().catch(() => {});
   };
   const enterFocusMode = () => {
+    mobileNavigation.current?.hidePopover();
     customization.current?.hidePopover();
     restoreFocus.current = true;
     setFocusMode(true);
@@ -70,20 +72,30 @@ export default function Home() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [panel, selected]);
-  const openPanel = (next: Panel) => { customization.current?.hidePopover(); setSelected(null); setPanel(next); };
+  const openPanel = (next: Panel) => { mobileNavigation.current?.hidePopover(); customization.current?.hidePopover(); setSelected(null); setPanel(next); };
   const love = () => { setLiked(!liked); try { localStorage.setItem('qiyana-loved', String(!liked)); } catch {} };
 
   return <main ref={experience} className={`experience${focusMode ? ' is-focus-mode' : ''}`}>
     <div className="hero-scene" inert={panel !== null}>
       <BackgroundArtwork active={activeSkin}/>
       <div className="hero-shade"/>
-      <header className="nav" inert={focusMode} aria-hidden={focusMode}><a className="brand" href="/" aria-label="Qiyana home">QIYANA<span>.</span></a><nav aria-label="Main navigation">
+      <header className="nav" inert={focusMode} aria-hidden={focusMode}><a className="brand" href="/" aria-label="Qiyana home">QIYANA<span>.</span></a><nav className="desktop-navigation" aria-label="Main navigation">
         <button onClick={() => openPanel('queen')} aria-haspopup="dialog">THE EMPRESS</button>
         <button onClick={() => openPanel('spotlight')} aria-haspopup="dialog">SPOTLIGHT <span className="tiny-dot"/></button>
         <button onClick={() => openPanel('gallery')} aria-haspopup="dialog">GALLERY <span className="nav-count">11</span></button>
         <button className="customize-toggle" popoverTarget="customization-menu" aria-label="Customize appearance" title="Customize appearance"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="var(--bg)"/><circle cx="15" cy="17" r="3" fill="var(--bg)"/></svg></button>
         <button ref={focusToggle} className="focus-toggle" onClick={enterFocusMode} aria-label="View artwork fullscreen" title="View artwork fullscreen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5"/></svg></button>
-      </nav></header>
+      </nav><button className="mobile-menu-toggle" popoverTarget="mobile-navigation" aria-label="Open navigation menu"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></header>
+      <div ref={mobileNavigation} id="mobile-navigation" className="mobile-navigation" popover="auto" role="dialog" aria-labelledby="mobile-navigation-title">
+        <div className="customization-header"><span id="mobile-navigation-title">EXPLORE HER WORLD</span><button popoverTarget="mobile-navigation" popoverTargetAction="hide" aria-label="Close navigation menu">✕</button></div>
+        <nav aria-label="Mobile navigation">
+          <button onClick={() => openPanel('queen')}>THE EMPRESS <span>01 ↗</span></button>
+          <button onClick={() => openPanel('spotlight')}>SPOTLIGHT <span>02 ↗</span></button>
+          <button onClick={() => openPanel('gallery')}>GALLERY <span>03 ↗</span></button>
+          <button onClick={() => { mobileNavigation.current?.hidePopover(); customization.current?.showPopover(); }}>CUSTOMIZE <span>✧</span></button>
+          <button onClick={enterFocusMode}>VIEW ARTWORK <span>⛶</span></button>
+        </nav>
+      </div>
       <div ref={customization} id="customization-menu" className="customization-menu" popover="auto" role="dialog" aria-labelledby="customization-title">
         <div className="customization-header"><span id="customization-title">CUSTOMIZE</span><button popoverTarget="customization-menu" popoverTargetAction="hide" aria-label="Close customization">✕</button></div>
         <p>Make her world your own.</p>

@@ -99,3 +99,52 @@
 .nav .customize-toggle { display:grid; place-items:center; padding:10px; color:#c5b5cf; }
 @keyframes customize-arrive { from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)} }
 @media(max-width:560px) { .customization-menu { top:68px; right:6%; padding:20px; } .nav .customize-toggle { padding:7px 0; } }
+
+.nav .mobile-menu-toggle { display:none; }
+.mobile-navigation { position:fixed; inset:76px 6% auto auto; width:min(340px,88vw); max-height:calc(100dvh - 96px); overflow:auto; margin:0; padding:20px; color:var(--paper); border:1px solid #ee8ecc35; background:#120e1bf5; backdrop-filter:blur(24px); box-shadow:0 20px 70px #0008; }
+.mobile-navigation:popover-open { animation:customize-arrive .2s ease-out; }
+.mobile-navigation nav { display:flex; flex-direction:column; margin-top:15px; }
+.mobile-navigation nav button { display:flex; justify-content:space-between; align-items:center; min-height:51px; padding:12px 0; border:0; border-bottom:1px solid #ffffff12; background:none; text-align:left; font-size:12px; letter-spacing:1.2px; }
+.mobile-navigation nav button:last-child { border-bottom:0; }
+.mobile-navigation nav button span { color:var(--pink); font-size:10px; }
+.mobile-navigation .customization-header button { min-width:36px; min-height:36px; }
+@media(min-width:701px) { .mobile-navigation:popover-open { display:none; } }
+@media(max-width:700px) {
+  .experience .hero-scene { height:100svh; min-height:620px; display:flex; flex-direction:column; }
+  .experience .nav { height:68px; min-height:68px; flex:none; margin-inline:6%; }
+  .experience .nav .brand { font-size:21px; }
+  .experience .nav .desktop-navigation { display:none; }
+  .experience .nav .mobile-menu-toggle { display:grid; place-items:center; width:44px; height:44px; padding:10px; }
+  .experience .hero { flex:1; height:auto; min-height:0; display:flex; flex-direction:column; justify-content:flex-end; gap:24px; padding:20px 6% max(20px,env(safe-area-inset-bottom)); }
+  .experience .hero-content { position:static; transform:none; width:100%; flex:none; }
+  .experience .hero-content h1 { font-size:clamp(58px,14.8vw,88px); }
+  .experience .hero-content>.eyebrow { font-size:9px; margin-bottom:18px; }
+  .experience .hero-description { font-size:13px; line-height:1.7; margin:18px 0; }
+  .experience .hero-caption { display:none; }
+  .experience .button { min-height:46px; font-size:9px; }
+  .experience .hero-lyrics.music-player { position:relative; inset:auto; width:100%; max-width:440px; align-self:center; margin:0; padding:13px 16px; flex:none; border:1px solid #ee8ecc22; background:#0c0913b8; backdrop-filter:blur(15px); }
+  .experience .music-player .lyrics-label { font-size:9px; min-height:30px; padding:0; }
+  .experience .music-player .lyrics-ghost { display:none; }
+  .experience .music-player .lyrics-current { font-size:23px; margin:4px 0 10px; }
+  .experience .music-player .music-summary { padding-top:10px; margin-top:8px; gap:12px; }
+  .experience .music-player .music-toggle { width:40px; height:40px; font-size:14px; }
+  .experience .music-player .music-track strong { font-size:14px; }
+  .experience .music-player .music-track>span { font-size:10px; }
+  .experience .music-player .volume-trigger { width:40px; height:40px; }
+  .experience .music-player #music-details { padding-top:3px; }
+  .experience .music-player .music-progress { padding:9px 0; }
+  .experience .music-player .music-times { font-size:10px; margin-top:0; }
+  .experience .is-focus-mode .hero-content { display:none; }
+  .experience.is-focus-mode .hero-content { display:none; }
+  .experience .customization-menu { top:76px; right:6%; max-height:calc(100dvh - 96px); overflow:auto; }
+  .experience .exit-focus { top:18px; }
+}
+@media(max-width:700px) and (max-height:740px) {
+  .experience .hero { gap:18px; padding-top:12px; padding-bottom:16px; }
+  .experience .hero-content h1 { font-size:56px; }
+  .experience .hero-content>.eyebrow { margin-bottom:12px; font-size:8px; }
+  .experience .hero-description { display:none; }
+  .experience .hero-content>.button { margin-top:18px; min-height:44px; }
+  .experience .hero-lyrics.music-player { padding:10px 14px; }
+  .experience .music-player .lyrics-current { font-size:21px; margin-bottom:7px; }
+}
