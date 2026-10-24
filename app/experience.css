@@ -132,3 +132,8 @@ h2 em,.queen-signature em { font-family:Georgia,serif; color:var(--pink); font-w
 .hero-artwork .hero-image { z-index:0; }
 .hero-artwork { background-size:cover; background-position:center; }
 .hero-artwork::before { content:''; position:absolute; inset:-30px; background-image:inherit; background-size:cover; background-position:center; filter:blur(24px) brightness(.5); }
+
+@media (min-width:701px) {
+  .section-modal.modal-spotlight { width:min(760px,calc(100% - 64px)); }
+  .modal-spotlight .spotlight-copy { padding:35px 40px; }
+}
