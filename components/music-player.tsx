@@ -6,6 +6,7 @@ import { soundtrack } from '../lib/soundtrack';
 import Lyrics from './lyrics';
 
 const formatTime = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, '0')}`;
+const AUDIO_SETTINGS_KEY = 'qiyana-audio-settings';
 
 export default function MusicPlayer() {
   const audio = useRef<HTMLAudioElement>(null);
@@ -28,7 +29,29 @@ export default function MusicPlayer() {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(.35);
   const [muted, setMuted] = useState(false);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [status, setStatus] = useState<'blocked' | 'error' | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(AUDIO_SETTINGS_KEY);
+      if (saved) {
+        const settings: unknown = JSON.parse(saved);
+        if (settings && typeof settings === 'object') {
+          const { volume, muted } = settings as { volume?: unknown; muted?: unknown };
+          if (typeof volume === 'number' && Number.isFinite(volume) && volume >= 0 && volume <= 1) setVolume(volume);
+          if (typeof muted === 'boolean') setMuted(muted);
+        }
+      }
+    } catch { /* Keep the defaults if storage is unavailable or invalid. */ }
+    setSettingsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    // Wait for restoration before saving so defaults cannot overwrite a saved level.
+    if (!settingsLoaded) return;
+    try { localStorage.setItem(AUDIO_SETTINGS_KEY, JSON.stringify({ volume, muted })); } catch {}
+  }, [volume, muted, settingsLoaded]);
 
   useEffect(() => {
     if (!volumeOpen) return;
