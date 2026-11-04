@@ -70,7 +70,7 @@
 2. **Bağımlılıkları yükleyin**
 
    ```bash
-   npm ci
+   npm install
    ```
 
 3. **Geliştirme sunucusunu başlatın**

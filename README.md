@@ -70,7 +70,7 @@
 2. **Install dependencies**
 
    ```bash
-   npm ci
+   npm install
    ```
 
 3. **Start the development server**
