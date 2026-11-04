@@ -40,7 +40,7 @@
 
 ## <a id="about"></a> 📋 About
 
-**Qiyana Universe** brings together Qiyana’s story, skin artwork, and a curated soundtrack. Explore her Ixtal origins in The Empress, see True Damage Know My Name Qiyana in the Spotlight, or browse the full artwork collection.
+This project brings together Qiyana’s story, skin artwork, and a curated soundtrack. Explore her Ixtal origins in The Empress, see True Damage Know My Name Qiyana in the Spotlight, or browse the full artwork collection.
 
 ## <a id="features"></a> ✨ Features
 

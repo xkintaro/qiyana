@@ -40,7 +40,7 @@
 
 ## <a id="about"></a> 📋 Hakkında
 
-**Qiyana Universe**, Qiyana’nın hikâyesini, kostüm çizimlerini ve seçilmiş müzikleri bir araya getiriyor. The Empress bölümünde Ixtal kökenlerini keşfedebilir, Spotlight bölümünde True Damage Know My Name Qiyana’yı inceleyebilir veya galeride tüm çizimlere göz atabilirsiniz.
+Bu proje, Qiyana’nın hikâyesini, kostüm çizimlerini ve seçilmiş müzikleri bir araya getiriyor. The Empress bölümünde Ixtal kökenlerini keşfedebilir, Spotlight bölümünde True Damage Know My Name Qiyana’yı inceleyebilir veya galeride tüm çizimlere göz atabilirsiniz.
 
 ## <a id="features"></a> ✨ Özellikler
 
